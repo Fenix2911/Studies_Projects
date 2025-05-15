@@ -1,5 +1,5 @@
 import random
-gracze = ["Kuc", "Seba", "Werka", "Dawid", "Kosiarek", "Michał", "Duolingo", "Eryk"]
+gracze = ["User1", "User2" "etc."]
 noweTeamy= []
 random.shuffle(gracze)
 team = 0
