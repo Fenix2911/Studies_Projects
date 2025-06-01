@@ -1,0 +1,7 @@
+# Ignore YOLOv5 and YOLOv8 model files
+yolov5s.pt
+yolov5su.pt
+yolov8n.pt
+
+__init__.zip
+
