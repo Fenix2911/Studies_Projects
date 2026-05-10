@@ -2,10 +2,10 @@ import random
 import math
 import matplotlib.pyplot as plt
 
-#Zadanie 1
+
+# Zadanie 1
 def interpolate(y_array, delta_t, t):
     i = int(t / delta_t)
-
 
     if i < 0:
         return y_array[0]
@@ -15,10 +15,11 @@ def interpolate(y_array, delta_t, t):
     t_i = i * delta_t
     t_next = (i + 1) * delta_t
     y_i = y_array[i]
-    y_next = y_array[i+1]
+    y_next = y_array[i + 1]
     y = y_i + ((y_next - y_i) / (t_next - t_i)) * (t - t_i)
 
     return y
+
 
 def find_y(y_array, delta_t):
     N = (len(y_array) - 1) * delta_t
@@ -26,7 +27,9 @@ def find_y(y_array, delta_t):
 
     while True:
         try:
-            t = float(input(f"Podaj czas w przedziale [0, {N}] (wartość ujemna kończy): "))
+            t = float(
+                input(f"Podaj czas w przedziale [0, {N}] (wartość ujemna kończy): ")
+            )
         except ValueError:
             print("To nie jest prawidłowa liczba.")
             continue
@@ -42,9 +45,10 @@ def find_y(y_array, delta_t):
             print("Podany czas jest poza zakresem pomiarów!")
 
 
-#Zadanie 2
+# Zadanie 2
 def f(x):
     return 4 * x + 1
+
 
 a = 4
 c = 2
@@ -60,15 +64,18 @@ for i in range(1, 101):
 
     left_side = (f(x_i) - f_c) / (x_i - c)
 
-    #1e-9 pozwala uniknąć błędu niedokładności komputerowej liczb numerycznych
+    # 1e-9 pozwala uniknąć błędu niedokładności komputerowej liczb numerycznych
     if abs(left_side - a) > 1e-9:
         print(f"Błąd w iteracji {i} dla x={x_i}. Otrzymano {left_side}, oczekiwano {a}")
         success = False
 
 if success:
-    print("Zakończono pomyślnie. Dla wszystkich 100 punktów wymóg został spełniony, nachylenie wynosi 4.")
+    print(
+        "Zakończono pomyślnie. Dla wszystkich 100 punktów wymóg został spełniony, nachylenie wynosi 4."
+    )
 
-#Zadanie 3
+
+# Zadanie 3
 def compare_pi_schemes():
     try:
         n = int(input("Podaj liczbę iteracji N dla schematów (np. 100): "))
@@ -89,7 +96,7 @@ def compare_pi_schemes():
 
     for k in range(n):
         # Leibniz
-        sum_leibniz += 1 / ((4*k + 1) * (4*k + 3))
+        sum_leibniz += 1 / ((4 * k + 1) * (4 * k + 3))
         pi_leibniz = 8 * sum_leibniz
         errors_leibniz.append(abs(true_pi - pi_leibniz))
 
@@ -107,17 +114,18 @@ def compare_pi_schemes():
 
     iterations = list(range(1, n + 1))
 
-    plt.plot(iterations, errors_leibniz, label='Błąd: Schemat Leibniza (zmodyfikowany)')
-    plt.plot(iterations, errors_euler, label='Błąd: Schemat Eulera', color='red')
+    plt.plot(iterations, errors_leibniz, label="Błąd: Schemat Leibniza (zmodyfikowany)")
+    plt.plot(iterations, errors_euler, label="Błąd: Schemat Eulera", color="red")
 
-    plt.title(r'Rozwój błędu przybliżenia $\pi$ w zależności od liczby iteracji $N$')
-    plt.xlabel('Liczba iteracji (N)')
-    plt.ylabel(r'Błąd bezwzględny ($|\pi - \pi_{approx}|$ )')
+    plt.title(r"Rozwój błędu przybliżenia $\pi$ w zależności od liczby iteracji $N$")
+    plt.xlabel("Liczba iteracji (N)")
+    plt.ylabel(r"Błąd bezwzględny ($|\pi - \pi_{approx}|$ )")
 
-    plt.yscale('log')
+    plt.yscale("log")
     plt.grid(True, which="both", ls="--")
     plt.legend()
     plt.show()
+
 
 if __name__ == "__main__":
     parameters_y = [4.4, 2.0, 11.0, 21.5, 7.5]
