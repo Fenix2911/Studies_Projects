@@ -1,56 +1,36 @@
-# Welcome to your Expo app 👋
+# Dokumentacja Projektu: Jakość Powietrza (Air Quality)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## 1. Opis celu aplikacji
+Aplikacja ma na celu monitorowanie i wyświetlanie bieżącego stanu jakości powietrza w dokładnym miejscu przebywania użytkownika. Dzięki czytelnemu interfejsowi opartemu na kartach (kafelkach), użytkownik może w ułamku sekundy zapoznać się z kluczowymi wskaźnikami zanieczyszczeń, takimi jak pyły zawieszone czy gazy niebezpieczne. Aplikacja została zaprojektowana z myślą o prostocie obsługi – dane są pobierane automatycznie po wejściu do widoku, z możliwością ręcznego odświeżenia za pomocą gestu pociągnięcia (pull-to-refresh).
 
-## Get started
+## 2. Opis wykorzystanych danych z urządzenia
+Aplikacja korzysta z wbudowanego w urządzenie modułu **GPS (Usługi lokalizacyjne)**.
+* **Współrzędne geograficzne:** Pobierane są dokładne wartości szerokości (`latitude`) i długości (`longitude`) geograficznej.
+* **Uprawnienia:** Zastosowano mechanizm żądania zgody użytkownika na dostęp do lokalizacji w tle/na pierwszym planie (`requestForegroundPermissionsAsync`). Bez udzielenia tej zgody aplikacja blokuje wysłanie zapytania i informuje o tym użytkownika.
+* **Dokładność:** W celu obejścia problemów z pamięcią podręczną urządzeń, wymuszono pobieranie danych z najwyższą dostępną dokładnością (`Location.Accuracy.Highest`). Zebrane współrzędne są następnie zaokrąglane do 4 miejsc po przecinku w celu optymalizacji zapytania sieciowego.
 
-1. Install dependencies
+## 3. Opis wykorzystanych bibliotek i API
+* **React Native / Expo:** Główny framework użyty do budowy aplikacji wieloplatformowej (Android, iOS, Web).
+* **`expo-location` (SDK):** Oficjalna biblioteka Expo do interakcji z czujnikami lokalizacji urządzenia. Odpowiada za obsługę uprawnień oraz odczyt koordynatów GPS.
+* **Open-Meteo Air Quality API:** Zewnętrzne, darmowe API (niewymagające klucza autoryzacyjnego), wykorzystane do pobierania surowych danych o jakości powietrza. Zapytanie bazuje na przekazanych współrzędnych i żąda zwrotu konkretnych wskaźników:
+   * `pm10` (Pył zawieszony PM10)
+   * `pm2_5` (Pył zawieszony PM2.5)
+   * `carbon_monoxide` (Tlenek węgla - CO)
+   * `nitrogen_dioxide` (Dwutlenek azotu - NO₂)
+   * `ozone` (Ozon - O₃)
 
-   ```bash
-   npm install
-   ```
+## 4. Opis przepływu danych w aplikacji
+1. **Inicjalizacja:** Użytkownik wchodzi na ekran aplikacji. Komponent renderuje widok ładowania (`ActivityIndicator`).
+2. **Autoryzacja:** Uruchamiana jest asynchroniczna funkcja sprawdzająca/prosząca o uprawnienia do lokalizacji.
+3. **Pobranie GPS:** Po uzyskaniu zgody, aplikacja odpytuje system o aktualne współrzędne geograficzne.
+4. **Transformacja:** Współrzędne są przycinane do formatu akceptowanego przez API (4 miejsca po przecinku).
+5. **Żądanie Sieciowe:** Wykonywany jest asynchroniczny `fetch` do API Open-Meteo z parametrami `latitude` i `longitude`.
+6. **Aktualizacja Stanu (State):** Otrzymany obiekt JSON jest parsowany. Aplikacja aktualizuje stan `airData` (co wyłącza ekran ładowania i wyświetla karty z danymi) lub stan `errorMsg` (w przypadku problemów z siecią lub braku danych).
+7. **Odświeżanie:** Przeciągnięcie ekranu w dół (`RefreshControl`) resetuje proces, wymuszając ponowne ustalenie GPS i nowe zapytanie do API.
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 5. Lista ograniczeń i problemów napotkanych podczas realizacji
+* **Zależność od sprzętowego GPS w emulatorach:** Emulatory (np. w Android Studio) nie posiadają fizycznego modułu GPS. Wymagało to ręcznego ustawiania współrzędnych (Mock Location) poprzez *Extended Controls*.
+* **Usypianie usług lokalizacyjnych na wirtualnych urządzeniach:** Nawet po ustawieniu współrzędnych, wirtualny system Android często odrzucał zapytania Expo zwracając błąd `Current location is unavailable`. Problem rozwiązano wymuszając wysoką dokładność w kodzie oraz wybudzając wirtualny GPS poprzez uruchomienie systemowej aplikacji Google Maps.
+* **Problem z pamięcią podręczną (Cache) lokalizacji:** System operacyjny miał tendencję do zwracania starych współrzędnych przy kolejnych odświeżeniach. Rozwiązaniem było dodanie parametru `{ accuracy: Location.Accuracy.Highest }` do funkcji pobierającej lokalizację.
+* **Ograniczenia środowiska Xcode (Mac):** Podczas testów napotkano blokadę budowania aplikacji ze względu na niezaakceptowaną licencję EULA narzędzi deweloperskich Apple, co wymagało interwencji z poziomu terminala i uprawnień administratora.
+* **Ograniczenia samego API:** Aplikacja ufa danym dostarczanym przez Open-Meteo. W bardzo rzadko zaludnionych obszarach lub na morzu, API może nie zwrócić pełnego zestawu danych dla żądanych wskaźników, dla czego przewidziano dedykowany komunikat błędu.
